@@ -83,7 +83,7 @@ class _NetworkScreenState extends State<NetworkScreen>
   Future<void> _refreshAvailableNetworks() async {
     try {
       final result =
-      await Process.run('nmcli', ['-t', 'device', 'wifi', 'list']);
+          await Process.run('nmcli', ['-t', 'device', 'wifi', 'list']);
       if (result.exitCode == 0) {
         List<WifiNetwork> networks = _parseWifiList(result.stdout as String);
         setState(() => availableNetworks = networks);
@@ -141,7 +141,7 @@ class _NetworkScreenState extends State<NetworkScreen>
       final result = await Process.run('nmcli', ['-t', 'connection', 'show']);
       if (result.exitCode == 0) {
         List<SavedConnection> connections =
-        _parseConnectionShow(result.stdout as String);
+            _parseConnectionShow(result.stdout as String);
         setState(() => savedConnections = connections);
       } else {
         _showError('Failed to list saved connections: ${result.stderr}');
@@ -175,14 +175,14 @@ class _NetworkScreenState extends State<NetworkScreen>
   Future<void> _getConnectionStatus() async {
     try {
       final deviceResult =
-      await Process.run('nmcli', ['-t', 'device', 'status']);
+          await Process.run('nmcli', ['-t', 'device', 'status']);
       if (deviceResult.exitCode == 0) {
         String? currentNetwork =
-        _parseConnectedNetworkName(deviceResult.stdout as String);
+            _parseConnectedNetworkName(deviceResult.stdout as String);
 
         if (currentNetwork != null) {
           final wifiResult =
-          await Process.run('nmcli', ['-t', 'device', 'wifi', 'list']);
+              await Process.run('nmcli', ['-t', 'device', 'wifi', 'list']);
           if (wifiResult.exitCode == 0) {
             String? currentNetworkSignal = _getConnectedNetworkSignal(
                 wifiResult.stdout as String, currentNetwork);
@@ -235,7 +235,8 @@ class _NetworkScreenState extends State<NetworkScreen>
 
   Future<bool> _isNetworkAvailable(String ssid) async {
     try {
-      final result = await Process.run('nmcli', ['-t', 'device', 'wifi', 'list']);
+      final result =
+          await Process.run('nmcli', ['-t', 'device', 'wifi', 'list']);
       if (result.exitCode == 0) {
         List<WifiNetwork> networks = _parseWifiList(result.stdout as String);
         return networks.any((network) => network.ssid == ssid);
@@ -288,7 +289,7 @@ class _NetworkScreenState extends State<NetworkScreen>
     setState(() => connectionStatus = 'Connecting to ${connection.name}...');
     try {
       final result =
-      await Process.run('nmcli', ['connection', 'up', connection.name]);
+          await Process.run('nmcli', ['connection', 'up', connection.name]);
       if (result.exitCode == 0) {
         _showSuccess('Connected to ${connection.name}');
         await _refreshData();
@@ -306,7 +307,7 @@ class _NetworkScreenState extends State<NetworkScreen>
     setState(() => connectionStatus = 'Disconnecting...');
     try {
       final result =
-      await Process.run('nmcli', ['device', 'disconnect', 'wlan0']);
+          await Process.run('nmcli', ['device', 'disconnect', 'wlan0']);
       if (result.exitCode == 0) {
         _showSuccess('Disconnected');
         await _refreshData();
@@ -342,7 +343,7 @@ class _NetworkScreenState extends State<NetworkScreen>
                           ? Icons.visibility
                           : Icons.visibility_off),
                       onPressed: () => setDialogState(
-                              () => localPasswordVisible = !localPasswordVisible),
+                          () => localPasswordVisible = !localPasswordVisible),
                     ),
                   ),
                 ),
@@ -376,7 +377,7 @@ class _NetworkScreenState extends State<NetworkScreen>
   Future<void> _removeSavedConnection(SavedConnection connection) async {
     try {
       final result =
-      await Process.run('nmcli', ['connection', 'delete', connection.name]);
+          await Process.run('nmcli', ['connection', 'delete', connection.name]);
       if (result.exitCode == 0) {
         _showSuccess('Removed ${connection.name}');
         await _refreshData();
@@ -389,8 +390,8 @@ class _NetworkScreenState extends State<NetworkScreen>
   }
 
   void _showError(String message) => ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message), backgroundColor: Colors.red),
-  );
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
 
   void _showSuccess(String message) =>
       ScaffoldMessenger.of(context).showSnackBar(
@@ -406,13 +407,13 @@ class _NetworkScreenState extends State<NetworkScreen>
           IconButton(
             icon: _isRefreshing
                 ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            )
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
                 : const Icon(Icons.refresh),
             onPressed: _isRefreshing ? null : _refreshData,
           ),
@@ -490,7 +491,7 @@ class _NetworkScreenState extends State<NetworkScreen>
                 network.ssid,
                 style: TextStyle(
                   fontWeight:
-                  network.isConnected ? FontWeight.bold : FontWeight.normal,
+                      network.isConnected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
               subtitle: Column(
@@ -606,5 +607,3 @@ class SavedConnection {
     required this.device,
   });
 }
-
-
