@@ -37,8 +37,6 @@ class _NetworkScreenState extends State<NetworkScreen>
   String? connectedNetworkName;
   String? connectedNetworkSignal;
   final TextEditingController _passwordController = TextEditingController();
-  bool _showKeyboard = false;
-  bool _passwordVisible = false;
   late TabController _tabController;
   Timer? _refreshTimer;
   bool _isRefreshing = false;
