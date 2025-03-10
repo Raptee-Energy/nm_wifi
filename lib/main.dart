@@ -119,18 +119,21 @@ class _NetworkScreenState extends State<NetworkScreen>
       String bars = fields[6];
       String security = fields[7];
 
-      networks.add(WifiNetwork(
-        macAddress: macAddress,
-        ssid: ssid,
-        mode: mode,
-        channel: channel,
-        rate: rate,
-        signalStrength: signalStrength,
-        bars: bars,
-        security: security,
-        isConnected: isConnected,
-        rawSsid: rawSsid,
-      ));
+      int? channelNumber = int.tryParse(channel);
+      if (channelNumber != null && channelNumber > 35) {
+        networks.add(WifiNetwork(
+          macAddress: macAddress,
+          ssid: ssid,
+          mode: mode,
+          channel: channel,
+          rate: rate,
+          signalStrength: signalStrength,
+          bars: bars,
+          security: security,
+          isConnected: isConnected,
+          rawSsid: rawSsid,
+        ));
+      }
     }
 
     return networks;
