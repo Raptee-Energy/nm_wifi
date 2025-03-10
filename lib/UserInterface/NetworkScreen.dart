@@ -33,6 +33,11 @@ class _NetworkScreenState extends State<NetworkScreen>
   WifiIconStatus _wifiIconStatus = WifiIconStatus.loading;
   String _wifiIconTooltip = 'Loading WiFi status...';
 
+  String? _snackbarMessage;
+  bool _snackbarIsError = false;
+  bool _isSnackbarVisible = false;
+  Timer? _snackbarTimer;
+
   @override
   void initState() {
     super.initState();
@@ -83,6 +88,7 @@ class _NetworkScreenState extends State<NetworkScreen>
   void dispose() {
     _tabController.dispose();
     _refreshTimer?.cancel();
+    _snackbarTimer?.cancel();
     super.dispose();
   }
 
@@ -108,11 +114,12 @@ class _NetworkScreenState extends State<NetworkScreen>
           _availableNetworks = networksResult.networks ?? [];
         });
       } else {
-        _showError(networksResult.errorMessage ??
-            'Failed to list available networks.');
+        _showSnackbar(
+            networksResult.errorMessage ?? 'Failed to list available networks.',
+            isError: true);
       }
     } catch (e) {
-      _showError('Unexpected error listing networks: $e');
+      _showSnackbar('Unexpected error listing networks: $e', isError: true);
     }
   }
 
@@ -124,11 +131,14 @@ class _NetworkScreenState extends State<NetworkScreen>
           _savedConnections = connectionsResult.connections ?? [];
         });
       } else {
-        _showError(connectionsResult.errorMessage ??
-            'Failed to list saved connections.');
+        _showSnackbar(
+            connectionsResult.errorMessage ??
+                'Failed to list saved connections.',
+            isError: true);
       }
     } catch (e) {
-      _showError('Unexpected error listing saved connections: $e');
+      _showSnackbar('Unexpected error listing saved connections: $e',
+          isError: true);
     }
   }
 
@@ -145,20 +155,23 @@ class _NetworkScreenState extends State<NetworkScreen>
         setState(() {
           _connectionStatus = 'Error getting status';
         });
-        _showError(
-            statusResult.errorMessage ?? 'Error getting connection status.');
+        _showSnackbar(
+            statusResult.errorMessage ?? 'Error getting connection status.',
+            isError: true);
       }
     } catch (e) {
       setState(() {
         _connectionStatus = 'Error getting status';
       });
-      _showError('Unexpected error getting connection status: $e');
+      _showSnackbar('Unexpected error getting connection status: $e',
+          isError: true);
     }
   }
 
   Future<void> _connectToNetwork(WifiNetwork network) async {
     if (!await _networkService.isNetworkAvailable(network.ssid)) {
-      _showError('Network "${network.ssid}" is no longer available.');
+      _showSnackbar('Network "${network.ssid}" is no longer available.',
+          isError: true);
       await _refreshData();
       return;
     }
@@ -175,13 +188,14 @@ class _NetworkScreenState extends State<NetworkScreen>
       final connectResult =
           await _networkService.connectToNetwork(network.rawSsid, password);
       if (connectResult.success) {
-        _showSuccess('Connected to ${network.ssid}');
+        _showSnackbar('Connected to ${network.ssid}', isError: false);
       } else {
-        _showError(connectResult.errorMessage ?? 'Connection failed.');
+        _showSnackbar(connectResult.errorMessage ?? 'Connection failed.',
+            isError: true);
       }
       await _refreshData();
     } catch (e) {
-      _showError('Error connecting to network: $e');
+      _showSnackbar('Error connecting to network: $e', isError: true);
       await _refreshData();
     }
   }
@@ -192,14 +206,16 @@ class _NetworkScreenState extends State<NetworkScreen>
       final connectResult =
           await _networkService.connectToSavedConnection(connection.name);
       if (connectResult.success) {
-        _showSuccess('Connected to ${connection.name}');
+        _showSnackbar('Connected to ${connection.name}', isError: false);
       } else {
-        _showError(connectResult.errorMessage ??
-            'Failed to connect to saved connection.');
+        _showSnackbar(
+            connectResult.errorMessage ??
+                'Failed to connect to saved connection.',
+            isError: true);
       }
       await _refreshData();
     } catch (e) {
-      _showError('Error connecting to saved connection: $e');
+      _showSnackbar('Error connecting to saved connection: $e', isError: true);
       await _refreshData();
     }
   }
@@ -209,13 +225,14 @@ class _NetworkScreenState extends State<NetworkScreen>
     try {
       final disconnectResult = await _networkService.disconnectNetwork();
       if (disconnectResult.success) {
-        _showSuccess('Disconnected');
+        _showSnackbar('Disconnected', isError: false);
       } else {
-        _showError(disconnectResult.errorMessage ?? 'Failed to disconnect.');
+        _showSnackbar(disconnectResult.errorMessage ?? 'Failed to disconnect.',
+            isError: true);
       }
       await _refreshData();
     } catch (e) {
-      _showError('Error disconnecting: $e');
+      _showSnackbar('Error disconnecting: $e', isError: true);
       await _refreshData();
     }
   }
@@ -278,25 +295,32 @@ class _NetworkScreenState extends State<NetworkScreen>
       final removeResult =
           await _networkService.removeSavedConnection(connection.name);
       if (removeResult.success) {
-        _showSuccess('Removed ${connection.name}');
+        _showSnackbar('Removed ${connection.name}', isError: false);
       } else {
-        _showError(
-            removeResult.errorMessage ?? 'Failed to remove saved connection.');
+        _showSnackbar(
+            removeResult.errorMessage ?? 'Failed to remove saved connection.',
+            isError: true);
       }
       await _refreshData();
     } catch (e) {
-      _showError('Error removing saved connection: $e');
+      _showSnackbar('Error removing saved connection: $e', isError: true);
     }
   }
 
-  void _showError(String message) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
-      );
+  void _showSnackbar(String message, {required bool isError}) {
+    setState(() {
+      _snackbarMessage = message;
+      _snackbarIsError = isError;
+      _isSnackbarVisible = true;
+    });
 
-  void _showSuccess(String message) =>
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.green),
-      );
+    _snackbarTimer?.cancel();
+    _snackbarTimer = Timer(const Duration(seconds: 5), () {
+      setState(() {
+        _isSnackbarVisible = false;
+      });
+    });
+  }
 
   IconData getWifiIconBasedOnStatus() {
     switch (_wifiIconStatus) {
@@ -323,7 +347,7 @@ class _NetworkScreenState extends State<NetworkScreen>
               message: _wifiIconTooltip,
               child: Icon(getWifiIconBasedOnStatus()),
             ),
-            onPressed: null, // Status icon is for display, not interactive
+            onPressed: null,
           ),
           IconButton(
             icon: _isRefreshing
@@ -361,24 +385,94 @@ class _NetworkScreenState extends State<NetworkScreen>
     return RefreshIndicator(
       onRefresh: _refreshData,
       child: ListView.builder(
-        itemCount: _availableNetworks.length + 1,
+        itemCount: _availableNetworks.length + 1 + (_isSnackbarVisible ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == 0) {
-            return ConnectionStatusCard(
-              connectionStatus: _connectionStatus,
-              connectedNetworkName: _connectedNetworkName,
-              connectedNetworkSignal: _connectedNetworkSignal,
-              onDisconnect: _disconnectNetwork,
-            );
+          if (_isSnackbarVisible) {
+            if (index == 0) {
+              return _buildSnackbarCard();
+            } else if (index == 1) {
+              return ConnectionStatusCard(
+                connectionStatus: _connectionStatus,
+                connectedNetworkName: _connectedNetworkName,
+                connectedNetworkSignal: _connectedNetworkSignal,
+                onDisconnect: _disconnectNetwork,
+              );
+            } else {
+              final network = _availableNetworks[index - 2];
+              return WifiNetworkTile(
+                network: network,
+                onConnect: () => _connectToNetwork(network),
+              );
+            }
+          } else {
+            if (index == 0) {
+              return ConnectionStatusCard(
+                connectionStatus: _connectionStatus,
+                connectedNetworkName: _connectedNetworkName,
+                connectedNetworkSignal: _connectedNetworkSignal,
+                onDisconnect: _disconnectNetwork,
+              );
+            } else {
+              final network = _availableNetworks[index - 1];
+              return WifiNetworkTile(
+                network: network,
+                onConnect: () => _connectToNetwork(network),
+              );
+            }
           }
-
-          final network = _availableNetworks[index - 1];
-          return WifiNetworkTile(
-            network: network,
-            onConnect: () => _connectToNetwork(network),
-          );
         },
       ),
+    );
+  }
+
+  Widget _buildSnackbarCard() {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeInOutCubic,
+      child: _isSnackbarVisible && _snackbarMessage != null
+          ? Dismissible(
+              key: UniqueKey(),
+              direction: DismissDirection.horizontal,
+              onDismissed: (direction) {
+                setState(() {
+                  _isSnackbarVisible = false;
+                });
+                _snackbarTimer?.cancel();
+              },
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(8),
+                  color: _snackbarIsError ? Colors.red : Colors.green,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _snackbarMessage!,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              _isSnackbarVisible = false;
+                            });
+                            _snackbarTimer?.cancel();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 
