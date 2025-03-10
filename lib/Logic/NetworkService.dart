@@ -226,7 +226,7 @@ class NetworkService {
         return ActionResponse(
           success: false,
           errorMessage:
-              'Failed to connect to the Wi-Fi network. Please check the password and network availability.',
+              'Failed to connect to the Wi-Fi network. Incorrect Password.',
         );
       }
     } on ProcessException {
