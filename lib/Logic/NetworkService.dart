@@ -14,19 +14,18 @@ class NetworkService {
       } else {
         return NetworkListResult(
           success: false,
-          errorMessage:
-              'Failed to list networks. nmcli error code: ${result.exitCode}. ${result.stderr}',
+          errorMessage: 'Failed to retrieve available Wi-Fi networks.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return NetworkListResult(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage: 'Error while trying to list Wi-Fi networks.',
       );
     } catch (e) {
       return NetworkListResult(
         success: false,
-        errorMessage: 'Unexpected error listing networks: $e',
+        errorMessage: 'An unexpected problem occurred while listing networks.',
       );
     }
   }
@@ -86,19 +85,19 @@ class NetworkService {
       } else {
         return SavedConnectionsResult(
           success: false,
-          errorMessage:
-              'Failed to list saved connections. nmcli error code: ${result.exitCode}. ${result.stderr}',
+          errorMessage: 'Failed to retrieve saved Wi-Fi connections.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return SavedConnectionsResult(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage: 'Error while trying to list saved connections.',
       );
     } catch (e) {
       return SavedConnectionsResult(
         success: false,
-        errorMessage: 'Unexpected error listing saved connections: $e',
+        errorMessage:
+            'An unexpected problem occurred while listing saved connections.',
       );
     }
   }
@@ -153,19 +152,19 @@ class NetworkService {
       } else {
         return ConnectionStatusResult(
           success: false,
-          errorMessage:
-              'Failed to get connection status. nmcli error code: ${deviceResult.exitCode}. ${deviceResult.stderr}',
+          errorMessage: 'Failed to get the current connection status.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return ConnectionStatusResult(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage: 'Error while checking connection status.',
       );
     } catch (e) {
       return ConnectionStatusResult(
         success: false,
-        errorMessage: 'Unexpected error getting connection status: $e',
+        errorMessage:
+            'An unexpected problem occurred while getting the connection status.',
       );
     }
   }
@@ -227,18 +226,19 @@ class NetworkService {
         return ActionResponse(
           success: false,
           errorMessage:
-              'Failed to connect to network. nmcli error code: ${result.exitCode}. ${result.stderr}. Please check the password and network availability.',
+              'Failed to connect to the Wi-Fi network. Please check the password and network availability.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return ActionResponse(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage: 'Error while trying to connect to the Wi-Fi network.',
       );
     } catch (e) {
       return ActionResponse(
         success: false,
-        errorMessage: 'Unexpected error connecting to network: $e',
+        errorMessage:
+            'An unexpected problem occurred while connecting to the Wi-Fi network.',
       );
     }
   }
@@ -252,19 +252,19 @@ class NetworkService {
       } else {
         return ActionResponse(
           success: false,
-          errorMessage:
-              'Failed to connect to saved connection. nmcli error code: ${result.exitCode}. ${result.stderr}',
+          errorMessage: 'Failed to connect to the saved Wi-Fi connection.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return ActionResponse(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage: 'Error while trying to connect to the saved connection.',
       );
     } catch (e) {
       return ActionResponse(
         success: false,
-        errorMessage: 'Unexpected error connecting to saved connection: $e',
+        errorMessage:
+            'An unexpected problem occurred while connecting to the saved Wi-Fi connection.',
       );
     }
   }
@@ -278,19 +278,20 @@ class NetworkService {
       } else {
         return ActionResponse(
           success: false,
-          errorMessage:
-              'Failed to disconnect from network. nmcli error code: ${result.exitCode}. ${result.stderr}',
+          errorMessage: 'Failed to disconnect from the current Wi-Fi network.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return ActionResponse(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage:
+            'Error while trying to disconnect from the Wi-Fi network.',
       );
     } catch (e) {
       return ActionResponse(
         success: false,
-        errorMessage: 'Unexpected error disconnecting network: $e',
+        errorMessage:
+            'An unexpected problem occurred while disconnecting from the Wi-Fi network.',
       );
     }
   }
@@ -304,19 +305,19 @@ class NetworkService {
       } else {
         return ActionResponse(
           success: false,
-          errorMessage:
-              'Failed to remove saved connection. nmcli error code: ${result.exitCode}. ${result.stderr}',
+          errorMessage: 'Failed to remove the saved Wi-Fi connection.',
         );
       }
-    } on ProcessException catch (e) {
+    } on ProcessException {
       return ActionResponse(
         success: false,
-        errorMessage: 'Error executing nmcli command: ${e.message}',
+        errorMessage: 'Error while trying to remove the saved connection.',
       );
     } catch (e) {
       return ActionResponse(
         success: false,
-        errorMessage: 'Unexpected error removing saved connection: $e',
+        errorMessage:
+            'An unexpected problem occurred while removing the saved Wi-Fi connection.',
       );
     }
   }
