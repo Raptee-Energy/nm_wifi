@@ -1,5 +1,8 @@
+
+
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
@@ -8,6 +11,7 @@ import '../Logic/NetworkService.dart';
 import 'Widgets/ConnectionStatusCard.dart';
 import 'Widgets/SavedConnectionTile.dart';
 import 'Widgets/WiFiNetworkTile.dart';
+import 'Widgets/WiFiToggleButton.dart';
 
 class NetworkScreen extends StatefulWidget {
   const NetworkScreen({super.key});
@@ -342,6 +346,7 @@ class _NetworkScreenState extends State<NetworkScreen>
       appBar: AppBar(
         title: const Text('Network Manager'),
         actions: [
+          const WifiToggleButton(),
           IconButton(
             icon: Tooltip(
               message: _wifiIconTooltip,

@@ -48,6 +48,19 @@ class ActionResponse {
   });
 }
 
+class WifiRadioStatusResult {
+  final bool success;
+  final String? errorMessage;
+  final String? status;
+
+  WifiRadioStatusResult({
+    required this.success,
+    this.errorMessage,
+    this.status,
+  });
+}
+
+
 class WifiNetwork {
   final String macAddress;
   final String ssid;

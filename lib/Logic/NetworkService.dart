@@ -321,4 +321,82 @@ class NetworkService {
       );
     }
   }
+
+  Future<ActionResponse> turnWifiOn() async {
+    try {
+      final result = await Process.run('nmcli', ['radio', 'wifi', 'on']);
+      if (result.exitCode == 0) {
+        return ActionResponse(success: true);
+      } else {
+        return ActionResponse(
+          success: false,
+          errorMessage: 'Failed to turn Wi-Fi on.',
+        );
+      }
+    } on ProcessException {
+      return ActionResponse(
+        success: false,
+        errorMessage: 'Error while trying to turn Wi-Fi on.',
+      );
+    } catch (e) {
+      return ActionResponse(
+        success: false,
+        errorMessage: 'An unexpected problem occurred while turning Wi-Fi on.',
+      );
+    }
+  }
+
+  Future<ActionResponse> turnWifiOff() async {
+    try {
+      final result = await Process.run('nmcli', ['radio', 'wifi', 'off']);
+      if (result.exitCode == 0) {
+        return ActionResponse(success: true);
+      } else {
+        return ActionResponse(
+          success: false,
+          errorMessage: 'Failed to turn Wi-Fi off.',
+        );
+      }
+    } on ProcessException {
+      return ActionResponse(
+        success: false,
+        errorMessage: 'Error while trying to turn Wi-Fi off.',
+      );
+    } catch (e) {
+      return ActionResponse(
+        success: false,
+        errorMessage: 'An unexpected problem occurred while turning Wi-Fi off.',
+      );
+    }
+  }
+
+  Future<WifiRadioStatusResult> getWifiRadioStatus() async {
+    try {
+      final result = await Process.run('nmcli', ['radio', 'wifi']);
+      if (result.exitCode == 0) {
+        final status = _parseWifiRadioStatus(result.stdout as String);
+        return WifiRadioStatusResult(success: true, status: status);
+      } else {
+        return WifiRadioStatusResult(
+          success: false,
+          errorMessage: 'Failed to get Wi-Fi radio status.',
+        );
+      }
+    } on ProcessException {
+      return WifiRadioStatusResult(
+        success: false,
+        errorMessage: 'Error while trying to get Wi-Fi radio status.',
+      );
+    } catch (e) {
+      return WifiRadioStatusResult(
+        success: false,
+        errorMessage:
+            'An unexpected problem occurred while getting Wi-Fi radio status.',
+      );
+    }
+  }
+
+  String _parseWifiRadioStatus(String stdout) {
+    return stdout.trim();
+  }
 }
