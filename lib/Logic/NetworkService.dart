@@ -111,12 +111,15 @@ class NetworkService {
 
       List<String> parts = line.split(':');
       if (parts.length >= 4) {
-        connections.add(SavedConnection(
-          name: parts[0],
-          uuid: parts[1],
-          type: parts[2],
-          device: parts[3],
-        ));
+        final type = parts[2];
+        if (type != 'loopback') {
+          connections.add(SavedConnection(
+            name: parts[0],
+            uuid: parts[1],
+            type: type,
+            device: parts[3],
+          ));
+        }
       }
     }
     return connections;

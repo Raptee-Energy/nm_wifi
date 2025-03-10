@@ -15,7 +15,8 @@ class SavedConnectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isActive = connection.device.isNotEmpty;
+    bool isActive =
+        connection.device.isNotEmpty && connection.device == 'wlan0';
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
